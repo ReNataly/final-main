@@ -1,0 +1,12 @@
+# Бинарники
+*.exe
+*.test
+parcel-service
+
+# База данных (чтобы не коммитить)
+tracker.db
+*.db-journal
+
+# IDE
+.vscode/
+.idea/
