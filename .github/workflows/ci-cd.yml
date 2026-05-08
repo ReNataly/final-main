@@ -66,5 +66,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/parcel-tracker:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/parcel-tracker:${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/final-main:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/final-main:${{ github.ref_name }}
