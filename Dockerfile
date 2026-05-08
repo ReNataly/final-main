@@ -1,36 +1,33 @@
-# Этап 1: Сборка приложения
-FROM golang:1.22-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
-# Копируем файлы зависимостей
+# Копируем файлы модуля
 COPY go.mod go.sum ./
 RUN go mod download
 
 # Копируем исходный код
 COPY *.go ./
 
-# Собираем статический бинарный файл
-RUN CGO_ENABLED=0 GOOS=linux go build -o /final-main .
+# Собираем приложение
+RUN CGO_ENABLED=0 GOOS=linux go build -o parcel-tracker .
 
-# Этап 2: Финальный образ
+# Финальный образ
 FROM alpine:3.19
 
-# Устанавливаем SQLite и создаем пользователя
-RUN apk add --no-cache sqlite
+# Устанавливаем SQLite
+RUN apk add --no-cache sqlite ca-certificates
+
+# Создаем пользователя
 RUN adduser -D -g '' appuser
 
+USER appuser
 WORKDIR /app
 
-# Копируем бинарный файл из этапа сборки
-COPY --from=builder /final-main .
+# Копируем бинарный файл
+COPY --from=builder /app/parcel-tracker .
 
-# Создаем директорию для данных
-RUN mkdir -p /data && chown -R appuser:appuser /app /data
-
-USER appuser
+# Том для данных БД
 VOLUME ["/data"]
-WORKDIR /data
 
-# Создаем таблицу при запуске и запускаем приложение
-ENTRYPOINT ["sh", "-c", "sqlite3 /data/tracker.db 'CREATE TABLE IF NOT EXISTS parcel (number INTEGER PRIMARY KEY AUTOINCREMENT, client INTEGER NOT NULL, status TEXT NOT NULL, address TEXT NOT NULL, created_at TEXT NOT NULL);' && /app/final-main"]
+ENTRYPOINT ["./parcel-tracker"]
